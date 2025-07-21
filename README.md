@@ -11,6 +11,7 @@ Main inputs:
 - CELLSIZE=30.0 # Grid size in meters
 - DOMAINSIZE=12000.0 # Height and width of domain in meters
 - SIMULATION_TSTOP=22200.0 # Simulation stop time (seconds)
+  
 Float32 inputs:
 NUM_FLOAT_RASTERS=7
 - WS 20-ft wind speed, mph
@@ -20,6 +21,7 @@ NUM_FLOAT_RASTERS=7
 - M100 100-hr dead moisture content, %
 - adj Spread rate adjustment factor (-)
 - phi Initial value of phi field
+  
 Int16 inputs:
 NUM_INT_RASTERS=8
 - slp Topographical slope (deg)
@@ -30,10 +32,11 @@ NUM_INT_RASTERS=8
 - ch Canopy height (10*meters)
 - cbh Canopy base height (10*meters)
 - cbd Canopy bulk density (100*kg/m3)
+
 Final 3 inputs:
-LH_MOISTURE_CONTENT=30.0 # Live herbaceous moisture content, percent
-LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
-A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
+- LH_MOISTURE_CONTENT=30.0 # Live herbaceous moisture content, percent
+- LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
+- A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
 
 Outputs:
 Time of arrival (s): time_of_arrival_XXXXXXX_YYYYYYY.tif
