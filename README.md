@@ -5,6 +5,42 @@ For chpa-214, a repository that contains information and scripts for generating 
 
 This repository serves as a reference for generating comprehensive datasets using ELMFIRE (Eulerian Level Set Model of Fire spread) to train deep learning models for wildfire behavior prediction. The approach is inspired by two key research efforts: the Google Research/USFS collaboration on high-resolution 1D fire modeling and established standards in wildfire machine learning research.
 
+## ELMFIRE basics
+Inputs:
+Main inputs:
+CELLSIZE=30.0 # Grid size in meters
+DOMAINSIZE=12000.0 # Height and width of domain in meters
+SIMULATION_TSTOP=22200.0 # Simulation stop time (seconds)
+Float32 inputs:
+NUM_FLOAT_RASTERS=7
+FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=15.0 # 20-ft wind speed, mph
+FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=0.0  # 20-ft Wind direction, deg
+FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=3.0  # 1-hr   dead moisture content, %
+FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=4.0  # 10-hr  dead moisture content, %
+FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=5.0  # 100-hr dead moisture content, %
+FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-)
+FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field
+Int16 inputs:
+NUM_INT_RASTERS=8
+INT_RASTER[1]=slp     ; INT_VAL[1]=0   # Topographical slope (deg)
+INT_RASTER[2]=asp     ; INT_VAL[2]=0   # Topographical aspect (deg)
+INT_RASTER[3]=dem     ; INT_VAL[3]=0   # Elevation (m)
+INT_RASTER[4]=fbfm40  ; INT_VAL[4]=102 # Fire behavior fuel model code (-)
+INT_RASTER[5]=cc      ; INT_VAL[5]=0   # Canopy cover (percent)
+INT_RASTER[6]=ch      ; INT_VAL[6]=0   # Canopy height (10*meters)
+INT_RASTER[7]=cbh     ; INT_VAL[7]=0   # Canopy base height (10*meters)
+INT_RASTER[8]=cbd     ; INT_VAL[8]=0   # Canopy bulk density (100*kg/m3)
+Final 3 inputs:
+LH_MOISTURE_CONTENT=30.0 # Live herbaceous moisture content, percent
+LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
+A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
+
+Outputs:
+Time of arrival (s): time_of_arrival_XXXXXXX_YYYYYYY.tif
+Spread rate (ft/min): vs_XXXXXXX_YYYYYYY.tif
+Fireline intensity (kW/m): flin_XXXXXXX_YYYYYYY.tif
+Hourly isochrones: hourly_isochrones.shp
+
 ## Research Foundation
 
 ### Key Papers
@@ -17,19 +53,16 @@ This repository serves as a reference for generating comprehensive datasets usin
   - California (real-world heterogeneous landscapes)
   - California-WN (spatially-varying wind via WindNinja)
 - **Model Architecture**: EPD-ConvLSTM model using autoregressive predictions over 15-minute increments, achieving Jaccard scores of 0.89-0.94 after 100 predictions (24+ hours)
-- **Key Innovation**: Time-resolved predictions vs. single large time-step predictions
 
 **2. Finney et al. (USFS/Google Research) - High-Resolution 1D Fire Modeling**
 - **Dataset Approach**: Generated 78,125 training cases using factorial combinations of 13 input variables on a 1D transect (100m fuel bed at 2cm resolution)
 - **Variables**: Wind speed, fuel particle sizes, fuel loads, moisture content, slope, aspect, and fuel arrangement parameters
 - **Outputs**: Rate of spread (ROS), flame length (FL), and flame zone depth (FZD)
-- **Key Insight**: Deep learning can approximate complex physics-based fire models with 7,000x speedup (70s → 0.01s per case)
 
 ### Dataset Complexity Progression
 
-Following the Google Research approach, we structure datasets with increasing complexity:
-
-1. **Level 1 (Single Fuel)**: Homogeneous fuel type (GR1 grass), uniform parameters across landscape but varying randomly across simulations
+# Google #
+1. **Level 1 (Single Fuel)**: Homogeneous fuel type (GR1 grass), one spot fire, uniform parameters across landscape but varying randomly across simulations
 2. **Level 2 (Multiple Fuel)**: Random fuel model used for entire domain, resulting in ~40x less coverage per fuel type combination
 3. **Level 3 (California)**: Real-world heterogeneous landscapes from LANDFIRE data, complex fuel arrangements
 4. **Level 4 (California-WN)**: Spatially-varying wind patterns computed by WindNinja based on topography
@@ -140,14 +173,6 @@ Canopy Bulk Density: [0, 4000] kg/m³
 - Exclude simulations with numerical instabilities
 - Filter unrealistic spread rates (>10 m/s)
 - Validate against simplified analytical models (Rothermel equations)
-
-## Real-World Applicability
-
-### Input Data Sources for Operational Use
-- **Fuel Data**: LANDFIRE, local forest inventories
-- **Weather**: RAWS stations, weather models (NAM, GFS)
-- **Topography**: USGS DEMs, lidar-derived products
-- **Real-time conditions**: MODIS fuel moisture, weather station networks
 
 ### Validation Strategy
 - Compare against historical fire perimeters
