@@ -7,7 +7,7 @@ This repository serves as a reference for generating comprehensive datasets usin
 
 ## Research Foundation
 
-### Key Papers Informing This Dataset
+### Key Papers
 
 **1. Burge et al. (Google Research) - Time-Resolved Wildfire Spread Behavior**
 - **Dataset Approach**: Generated 40,000 fire simulations using FARSITE on 128×128 cell domains with 30m resolution, testing four datasets of increasing complexity
