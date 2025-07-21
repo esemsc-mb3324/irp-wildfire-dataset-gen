@@ -102,7 +102,7 @@ Hourly isochrones: hourly_isochrones.shp
 
 ### Level 1 Dataset: Single Fuel (Proof of Concept)
 
-**Target Size**: 10,000-20,000 simulations
+**Target Size**: 10,000 simulations
 
 **Design Philosophy**: Following the Google Research single fuel dataset approach - homogeneous fuel type across entire landscape with uniform parameters per simulation, but randomly varying parameters across different simulations.
 
@@ -162,7 +162,7 @@ Canopy Bulk Density: [0, 4000] kg/m³
 ### ELMFIRE Configuration Considerations
 
 **Computational Domain:**
-- Cellsize: 300m (balance between detail and computational cost; Google used 30m)
+- Cellsize: 30m (balance between detail and computational cost; Google used 30m)
 - Domain extent: ~38km × 38km (128×128 cells)
 - Boundary conditions: Non-burnable boundaries (following Google approach)
 
