@@ -6,38 +6,6 @@ For chpa-214, a repository that contains information and scripts for generating 
 This repository serves as a reference for generating comprehensive datasets using ELMFIRE (Eulerian Level Set Model of Fire spread) to train deep learning models for wildfire behavior prediction. The approach is inspired by two key research efforts: the Google Research/USFS collaboration on high-resolution 1D fire modeling and established standards in wildfire machine learning research.
 
 ## ELMFIRE basics
-Inputs:
-Main inputs:
-- CELLSIZE=30.0 # Grid size in meters
-- DOMAINSIZE=12000.0 # Height and width of domain in meters
-- SIMULATION_TSTOP=22200.0 # Simulation stop time (seconds)
-  
-Float32 inputs:
-NUM_FLOAT_RASTERS=7
-- WS 20-ft wind speed, mph
-- WD 20-ft Wind direction, deg
-- M1 1-hr   dead moisture content, %
-- M10 10-hr  dead moisture content, %
-- M100 100-hr dead moisture content, %
-- adj Spread rate adjustment factor (-)
-- phi Initial value of phi field
-  
-Int16 inputs:
-NUM_INT_RASTERS=8
-- slp Topographical slope (deg)
-- asp Topographical aspect (deg)
-- dem Elevation (m)
-- fbfm Fire behavior fuel model code (-)
-- cc Canopy cover (percent)
-- ch Canopy height (10*meters)
-- cbh Canopy base height (10*meters)
-- cbd Canopy bulk density (100*kg/m3)
-
-Final 3 inputs:
-- LH_MOISTURE_CONTENT=30.0 # Live herbaceous moisture content, percent
-- LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
-- A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
-
 Outputs:
 Time of arrival (s): time_of_arrival_XXXXXXX_YYYYYYY.tif
 Spread rate (ft/min): vs_XXXXXXX_YYYYYYY.tif
