@@ -2,28 +2,144 @@
 For chpa-214, a repository that contains information and scripts for generating a dataset for wildfire modeling.
 
 ## Overview
-
 This repository serves as a reference for generating comprehensive datasets using ELMFIRE (Eulerian Level Set Model of Fire spread) to train deep learning models for wildfire behavior prediction. The approach is inspired by two key research efforts: the Google Research/USFS collaboration on high-resolution 1D fire modeling and established standards in wildfire machine learning research.
 
 ## ELMFIRE basics
+Inputs:
+FUELS_AND_TOPOGRAPHY_DIRECTORY: fuels directory './inputs'
+ASP_FILENAME (asp): topographic aspect in degrees (16-bit int)
+CBD_FILENAME (cbd): canopy bulk density in units of 100 kg/m³ (16-bit int)
+CBH_FILENAME (cbh): canopy base height in units of 10 meters (16-bit int)
+CC_FILENAME (cc): canopy cover in percent (0-100%) (16-bit int)
+CH_FILENAME (ch): canopy height in units of 10 meters (16-bit int)
+DEM_FILENAME (dem): digital elevation model in meters (16-bit int)
+FBFM_FILENAME (fbfm40): fire behavior fuel model (Scott & Burgan 40, categorical 1-40) (16-bit int)
+SLP_FILENAME (slp): topographic slope in degrees (16-bit int)
+ADJ_FILENAME (adj): surface spread rate adjustment factor (32-bit float)
+PHI_FILENAME (phi): initial level set variable field (32-bit float)
+DT_METEOROLOGY: meteorological time step in seconds (float, e.g., 3600.0)
+WEATHER_DIRECTORY: directory containing weather rasters (string)
+WS_FILENAME (ws): 20-ft wind speed in mph (32-bit float)
+WD_FILENAME (wd): 20-ft wind direction in degrees (32-bit float)
+M1_FILENAME (m1): 1-hour dead fuel moisture content in % (32-bit float)
+M10_FILENAME (m10): 10-hour dead fuel moisture content in % (32-bit float)
+M100_FILENAME (m100): 100-hour dead fuel moisture content in % (32-bit float)
+LH_MOISTURE_CONTENT: live herbaceous moisture content (%) (float, e.g., 30.0)
+LW_MOISTURE_CONTENT: live woody moisture content (%) (float, e.g., 60.0)
+
 Outputs:
 Time of arrival (s): time_of_arrival_XXXXXXX_YYYYYYY.tif
 Spread rate (ft/min): vs_XXXXXXX_YYYYYYY.tif
 Fireline intensity (kW/m): flin_XXXXXXX_YYYYYYY.tif
 Hourly isochrones: hourly_isochrones.shp
+OUTPUTS_DIRECTORY    = './outputs'
+DTDUMP               = 3600.
+DUMP_FLIN            = .TRUE.
+DUMP_SPREAD_RATE     = .TRUE.
+DUMP_TIME_OF_ARRIVAL = .TRUE.
+CONVERT_TO_GEOTIFF   = .FALSE.
 
-## Research Foundation
+Domain:
+A_SRS = 'EPSG: 32610'
+COMPUTATIONAL_DOMAIN_CELLSIZE = 30
+COMPUTATIONAL_DOMAIN_XLLCORNER = -6000.00
+COMPUTATIONAL_DOMAIN_YLLCORNER = -6000.00
 
-### Key Papers
+Time control:
+SIMULATION_DT    = 30.0
+SIMULATION_TSTOP = 21600.0
 
-**1. Burge et al. (Google Research) - Time-Resolved Wildfire Spread Behavior**
-- **Dataset Approach**: Generated 40,000 fire simulations using FARSITE on 128×128 cell domains with 30m resolution, testing four datasets of increasing complexity
-- **Four-Dataset Progression**: 
-  - Single fuel (homogeneous GR1 grass)
-  - Multiple fuel (random fuel model per domain)
-  - California (real-world heterogeneous landscapes)
-  - California-WN (spatially-varying wind via WindNinja)
-- **Model Architecture**: EPD-ConvLSTM model using autoregressive predictions over 15-minute increments, achieving Jaccard scores of 0.89-0.94 after 100 predictions (24+ hours)
+Simulator and ignitions:
+NUM_IGNITIONS = 1
+X_IGN(1)      = 0.0
+Y_IGN(1)      = 3000.0
+T_IGN(1)      = 0.0
+WX_BILINEAR_INTERPOLATION=.TRUE.
+WSMFEFF_LOW_MULT = 0.011364
+
+## Research Foundation for Generating Dataset
+**1. Recurrent Convolutional Deep Neural Networks for Modeling Time-Resolved Wildfire Spread Behavior – Burge et al. (Google Research)**
+- Basics
+  - FARSITE
+  - 40,000 simulations
+  - 80:10:10 split (train/val/test)
+  - Convergence defined to be earliest pt at which val loss stopped improving for 24hr of clock time
+  - L1, L2 regularization and dropout not helpful
+  - 128x128 cells with cell size of 30m = 3840x3840
+  - 72hr sims with 15min time step —> 289 timesteps/sequence
+      - Also tested 30min and 60min timesteps
+  - 17 channels: 
+      - The first three channels were derived from the burn fraction described above: (1) vegetation, the fraction of vegetation that remains unburnt, (2) fire_front, the fraction of vegetation that burned in the previous time step, and (3) scar, the fraction of vegetation that is currently burnt.
+      - The remaining 14: inputs tracked by FARSITE
+  - Parameters held constant intra-simulation (except for the fourth wind-varying dataset) but varied inter-simulation
+  - Finney used to calculate crown fire potential (foliar moisture=100%)
+  - Spotting not considered
+  - Starting loc of each fire selected to be within central 50% of field
+  - Octoganal fire front of 75m (2% of field) placed at central location
+  - One cell was trimmed from the border, resulting in a final field size of 126x126 cells.
+  - Prediction:
+    - Postprocessing: after each prediction, negative results clipped to prevent invalid predictions. DCIGN results were regularized.
+    - Both 6hr and 24hr autoregressive predictions generated
+  - Confidence intervals: determined by bootstrapping 20 new sequences by randomly sampling fire seqs from the 1000 seqs in og test dataset
+  - **Results:** Presented results showing ave error
+    - Presented results of both scar and fire front jaccard, RMSE, and STE metrics for both the EPD and EPD-ConvLSTM models for time steps of 15, 30, and 60min
+- Timings
+  - Inference time:
+    - EPD model takes ~7ms for one inference
+    - EPD-ConvLSTM model takes ~61ms to perform the same inference
+    - FARSITE takes between 20 ms and 100 ms (depending on how much fire is in the patch)
+  - Dataset generation:
+    - Generation: on hpc with each sim taking 30s to run – 330 CPU hours (12,000 on 36 core processors)
+    - Postprocessing: 17,000 core hours
+    - Total: 29,000 core-hours
+  - Training (16cpus, 8gpus):
+    - Single fuel:
+      - EPD model: ~4 days
+      - EPD-ConvLSTM model: ~6 days
+    - Multiple fuel and California datasets:
+      - EPD model: ~8 days
+      - EPD-ConvLSTM model: ~13 days
+- Results (100 autoregressive predictions; 24hr of simulated fire spread):
+  - Stable dynamics and Jaccard score between 0.89 and 0.94 for predicted fire scar
+- Datasets (FARSITE):
+  - Single fuel: every simulation used same fuel model. All other parameters held uniform across landscape, but vary randomly across simulations (TLDR: changing parameters without spatial variation)
+  - Multiple fuel: generated identically to single fuel, but for each sequence, random fuel model used for entire domain (TLDR: far less training data per fuel type than in single fuel)
+  - California: real-world landscape LCP 40 data obtained using LANDFIRE for continental US. For each simulation, a random 128x128 portion of California + some of Nevada was selected (resampled if <70% burnable fuel available)
+  - California (WN): generated identically to california dataset but with spatially varying wind. INTERESTING NOTE: “Only prevailing wind was provided to DNN models to reflect the sparse availalbility of such data in real-world applications."
+- **Inputs with ranges:**
+  - Slope [°]: [0, 45]
+  - Aspect [°]: [0, 360]
+  - Wind direction [°]: [0, 360]
+  - Wind velocity [km/h]: [0, 50]
+  - Fuel model [#, only discrete channel]: [1, 40]
+  - 1-h moisture [%]: [2, 40]
+  - 10-h moisture [%]: [2, 40]
+  - 100-h moisture [%]: [2, 40]
+  - Live herbaceous moisture [%]: [30, 100]
+  - Live woody moisture [%]: [30, 100]
+  - Canopy cover [%]: [0, 100]
+  - Canopy height [m]: [3, 50]
+  - Crown ratio [–]: [0.1, 1]
+  - Canopy bulk density [kg/]: [0, 4000]
+- **Outputs:**
+  - Original output of simulations:
+    - Series of data points for position of fire front over time
+  - Transformed outputs:
+    - Gridded data generated by computing burned area for each cell as fraction of burned region inside each cell
+    - 3 variables tracked from this fraction:
+      - Vegetation: fraction of vegeetation that remains unburnt
+      - Fire front: fraction of vegetation burned in previous timestep
+      - Scar: fraction of vegetation currently burnt
+- Link: https://link.springer.com/article/10.1007/s10694-023-01469-6#Tab1
+- Evaluation:
+  - Variables:
+    - Fire front (all metrics)
+    - Fire scar (all metrics)
+  - Metrics:
+    - MSE
+    - RMSE
+    - STE
+    - JSC
 
 **2. Finney et al. (USFS/Google Research) - High-Resolution 1D Fire Modeling**
 - **Dataset Approach**: Generated 78,125 training cases using factorial combinations of 13 input variables on a 1D transect (100m fuel bed at 2cm resolution)
@@ -37,36 +153,6 @@ Hourly isochrones: hourly_isochrones.shp
 2. **Level 2 (Multiple Fuel)**: Random fuel model used for entire domain, resulting in ~40x less coverage per fuel type combination
 3. **Level 3 (California)**: Real-world heterogeneous landscapes from LANDFIRE data, complex fuel arrangements
 4. **Level 4 (California-WN)**: Spatially-varying wind patterns computed by WindNinja based on topography
-
-## ELMFIRE Parameter Analysis for Dataset Generation
-
-### Core ELMFIRE Inputs (Always Required)
-
-**Fuel Data:**
-- `fbfm40.tif` - Scott & Burgan 40 fuel models (categorical: 1-40)
-- `cc.tif` - Canopy cover (0-100%)
-- `ch.tif` - Canopy height (meters)
-- `cbh.tif` - Canopy base height (meters)
-- `cbd.tif` - Canopy bulk density (kg/m³)
-- `adj.tif` - Fuel model adjustment factor (0-4)
-
-**Weather Variables (Time Series):**
-- `ws.tif` - Wind speed (m/s)
-- `wd.tif` - Wind direction (degrees)
-- `m1.tif` - 1-hour fuel moisture (%)
-- `m10.tif` - 10-hour fuel moisture (%)
-- `m100.tif` - 1000-hour fuel moisture (%)
-- `lh.tif` - Live herbaceous moisture (%)
-- `lw.tif` - Live woody moisture (%)
-
-**Topography:**
-- `dem.tif` - Digital elevation model (meters)
-- `slp.tif` - Slope (degrees)
-- `asp.tif` - Aspect (degrees)
-
-**Ignition:**
-- Point ignition coordinates (lat/lon)
-- Ignition timing
 
 ### Level 1 Dataset: Single Fuel (Proof of Concept)
 
