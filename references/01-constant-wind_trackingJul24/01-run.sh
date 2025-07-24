@@ -16,10 +16,10 @@ FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-)
 FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field
 
 NUM_INT_RASTERS=8
-INT_RASTER[1]=slp     ; INT_VAL[1]=86   # Topographical slope (deg) # perturbed directly
-INT_RASTER[2]=asp     ; INT_VAL[2]=152   # Topographical aspect (deg) # perturbed directly
+INT_RASTER[1]=slp     ; INT_VAL[1]=0   # Topographical slope (deg) # perturbed directly
+INT_RASTER[2]=asp     ; INT_VAL[2]=0   # Topographical aspect (deg) # perturbed directly
 INT_RASTER[3]=dem     ; INT_VAL[3]=0   # Elevation (m)
-INT_RASTER[4]=fbfm40  ; INT_VAL[4]=30 # Fire behavior fuel model code (-)
+INT_RASTER[4]=fbfm40  ; INT_VAL[4]=1 # Fire behavior fuel model code (-)
 INT_RASTER[5]=cc      ; INT_VAL[5]=50   # Canopy cover (percent)
 INT_RASTER[6]=ch      ; INT_VAL[6]=2   # Canopy height (10*meters)
 INT_RASTER[7]=cbh     ; INT_VAL[7]=1   # Canopy base height (10*meters)
