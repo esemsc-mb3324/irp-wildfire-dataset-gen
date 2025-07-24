@@ -4,7 +4,7 @@
 
 CELLSIZE=30.0 # Grid size in meters
 DOMAINSIZE=3840.0 # Height and width of domain in meters (128x128 cells)
-SIMULATION_TSTOP=259200.0 # Simulation stop time (seconds) 72hr
+SIMULATION_TSTOP=22100.0 # Simulation stop time (seconds) 72hr
 
 # Create base rasters with uniform values
 NUM_FLOAT_RASTERS=7
@@ -13,8 +13,8 @@ FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=180.0  # Wind direction, deg
 FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=19.0  # 1-hr   dead moisture content, %
 FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=19.0  # 10-hr  dead moisture content, %
 FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=19.0  # 100-hr dead moisture content, %
-FLOAT_RASTER[1]=adj  ; FLOAT_VAL[1]=1.0  # Spread rate adjustment factor (-) – WILL NOT BE PERTURBED
-FLOAT_RASTER[2]=phi  ; FLOAT_VAL[2]=1.0  # Initial value of phi field – WILL NOT BE PERTURBED
+FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-) – WILL NOT BE PERTURBED
+FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field – WILL NOT BE PERTURBED
 
 # Create integer base rasters - these will also be perturbed
 NUM_INT_RASTERS=8
@@ -34,7 +34,7 @@ A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
 
 # End inputs specification
 
-ELMFIRE_VER=${ELMFIRE_VER:-2025.0609}
+ELMFIRE_VER=${ELMFIRE_VER:-2025.0212}
 
 . ../functions/functions.sh
 
@@ -71,17 +71,8 @@ for i in $(eval echo "{1..$NUM_INT_RASTERS}"); do
    gdal_calc.py -A $SCRATCH/int.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/${INT_RASTER[i]}.tif" --calc="A + ${INT_VAL[i]}"
 done
 
-# Create meteorology rasters with base values (will be perturbed by Monte Carlo)
-# Wind speed: base value 15.5 mph (middle of 0-31 mph range, since 50 km/h ≈ 31 mph)
-gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/ws.tif" --calc="A + 15.5"
-
-# Wind direction: base value 180 degrees (middle of range)
-gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/wd.tif" --calc="A + 180"
-
-# Moisture contents: base values (middle of ranges)
-gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/m1.tif" --calc="A + 21"
-gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/m10.tif" --calc="A + 21"
-gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/m100.tif" --calc="A + 21"
+# Create the ignition mask (1.0 in all cells)
+# gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/ignition_mask.tif" --calc="A + 1.0"
 
 # Set inputs in elmfire.data
 replace_line COMPUTATIONAL_DOMAIN_XLLCORNER $XMIN no
@@ -99,7 +90,7 @@ elmfire_$ELMFIRE_VER ./inputs/elmfire.data
 for f in ./outputs/*.bil; do
    gdal_translate -a_srs "$A_SRS" -co "COMPRESS=DEFLATE" -co "ZLEVEL=9" $f ./outputs/`basename $f | cut -d. -f1`.tif
 done
-gdal_contour -i 3600 `ls ./outputs/time_of_arrival*.tif` ./outputs/hourly_isochrones.shp
+# gdal_contour -i 3600 `ls ./outputs/time_of_arrival*.tif` ./outputs/hourly_isochrones.shp
 
 # Clean up and exit:
 rm -f -r ./outputs/*.csv ./outputs/*.bil ./outputs/*.hdr $SCRATCH
