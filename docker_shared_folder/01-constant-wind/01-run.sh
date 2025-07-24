@@ -7,26 +7,26 @@ DOMAINSIZE=3840.0 # Height and width of domain in meters
 SIMULATION_TSTOP=22100.0 # Simulation stop time (seconds)
 
 NUM_FLOAT_RASTERS=7
-FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=15.0 # Wind speed, mph
-FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=180.0  # Wind direction, deg
-FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=20.0  # 1-hr   dead moisture content, %
-FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=20.0  # 10-hr  dead moisture content, %
-FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=20.0  # 100-hr dead moisture content, %
+FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=24.1 # Wind speed, mph
+FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=200.8  # Wind direction, deg
+FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=32.7  # 1-hr   dead moisture content, %
+FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=7.2  # 10-hr  dead moisture content, %
+FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=21.0  # 100-hr dead moisture content, %
 FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-)
 FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field
 
 NUM_INT_RASTERS=8
-INT_RASTER[1]=slp     ; INT_VAL[1]=86   # Topographical slope (deg) # perturbed directly
-INT_RASTER[2]=asp     ; INT_VAL[2]=152   # Topographical aspect (deg) # perturbed directly
+INT_RASTER[1]=slp     ; INT_VAL[1]=10   # Topographical slope (deg) # perturbed directly
+INT_RASTER[2]=asp     ; INT_VAL[2]=292   # Topographical aspect (deg) # perturbed directly
 INT_RASTER[3]=dem     ; INT_VAL[3]=0   # Elevation (m)
-INT_RASTER[4]=fbfm40  ; INT_VAL[4]=30 # Fire behavior fuel model code (-)
-INT_RASTER[5]=cc      ; INT_VAL[5]=50   # Canopy cover (percent)
+INT_RASTER[4]=fbfm40  ; INT_VAL[4]=38 # Fire behavior fuel model code (-)
+INT_RASTER[5]=cc      ; INT_VAL[5]=98   # Canopy cover (percent)
 INT_RASTER[6]=ch      ; INT_VAL[6]=2   # Canopy height (10*meters)
-INT_RASTER[7]=cbh     ; INT_VAL[7]=1   # Canopy base height (10*meters)
-INT_RASTER[8]=cbd     ; INT_VAL[8]=20   # Canopy bulk density (100*kg/m3)
+INT_RASTER[7]=cbh     ; INT_VAL[7]=0   # Canopy base height (10*meters)
+INT_RASTER[8]=cbd     ; INT_VAL[8]=23   # Canopy bulk density (100*kg/m3)
 
-LH_MOISTURE_CONTENT=65.0 # Live herbaceous moisture content, percent
-LW_MOISTURE_CONTENT=65.0 # Live woody moisture content, percent
+LH_MOISTURE_CONTENT=52.6 # Live herbaceous moisture content, percent
+LW_MOISTURE_CONTENT=42.2 # Live woody moisture content, percent
 A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
 
 # End inputs specification
