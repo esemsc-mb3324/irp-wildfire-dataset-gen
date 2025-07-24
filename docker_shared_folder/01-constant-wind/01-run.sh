@@ -26,7 +26,7 @@ INT_RASTER[7]=cbh     ; INT_VAL[7]=1   # Canopy base height (10*meters)
 INT_RASTER[8]=cbd     ; INT_VAL[8]=20   # Canopy bulk density (100*kg/m3)
 
 LH_MOISTURE_CONTENT=65.0 # Live herbaceous moisture content, percent
-LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
+LW_MOISTURE_CONTENT=65.0 # Live woody moisture content, percent
 A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
 
 # End inputs specification
