@@ -37,59 +37,6 @@ This repository serves as a reference for generating comprehensive datasets usin
 ## Workflow
 1. Copy the .sh, .py, and .csv files from the repo into a folder in ELMFIRE
 
-## ELMFIRE
-**Inputs:**
-FUELS_AND_TOPOGRAPHY_DIRECTORY: fuels directory './inputs'
-ASP_FILENAME (asp): topographic aspect in degrees (16-bit int)
-CBD_FILENAME (cbd): canopy bulk density in units of 100 kg/m³ (16-bit int)
-CBH_FILENAME (cbh): canopy base height in units of 10 meters (16-bit int)
-CC_FILENAME (cc): canopy cover in percent (0-100%) (16-bit int)
-CH_FILENAME (ch): canopy height in units of 10 meters (16-bit int)
-DEM_FILENAME (dem): digital elevation model in meters (16-bit int)
-FBFM_FILENAME (fbfm40): fire behavior fuel model (Scott & Burgan 40, categorical 1-40) (16-bit int)
-SLP_FILENAME (slp): topographic slope in degrees (16-bit int)
-ADJ_FILENAME (adj): surface spread rate adjustment factor (32-bit float)
-PHI_FILENAME (phi): initial level set variable field (32-bit float)
-DT_METEOROLOGY: meteorological time step in seconds (float, e.g., 3600.0)
-WEATHER_DIRECTORY: directory containing weather rasters (string)
-WS_FILENAME (ws): 20-ft wind speed in mph (32-bit float)
-WD_FILENAME (wd): 20-ft wind direction in degrees (32-bit float)
-M1_FILENAME (m1): 1-hour dead fuel moisture content in % (32-bit float)
-M10_FILENAME (m10): 10-hour dead fuel moisture content in % (32-bit float)
-M100_FILENAME (m100): 100-hour dead fuel moisture content in % (32-bit float)
-LH_MOISTURE_CONTENT: live herbaceous moisture content (%) (float, e.g., 30.0)
-LW_MOISTURE_CONTENT: live woody moisture content (%) (float, e.g., 60.0)
-
-**Outputs:**
-Time of arrival (s): time_of_arrival_XXXXXXX_YYYYYYY.tif
-Spread rate (ft/min): vs_XXXXXXX_YYYYYYY.tif
-Fireline intensity (kW/m): flin_XXXXXXX_YYYYYYY.tif
-Hourly isochrones: hourly_isochrones.shp
-OUTPUTS_DIRECTORY    = './outputs'
-DTDUMP               = 3600.
-DUMP_FLIN            = .TRUE.
-DUMP_SPREAD_RATE     = .TRUE.
-DUMP_TIME_OF_ARRIVAL = .TRUE.
-CONVERT_TO_GEOTIFF   = .FALSE.
-
-**Domain:**
-A_SRS = 'EPSG: 32610'
-COMPUTATIONAL_DOMAIN_CELLSIZE = 30
-COMPUTATIONAL_DOMAIN_XLLCORNER = -6000.00
-COMPUTATIONAL_DOMAIN_YLLCORNER = -6000.00
-
-**Time control:**
-SIMULATION_DT    = 30.0
-SIMULATION_TSTOP = 21600.0
-
-**Simulator and ignitions:**
-NUM_IGNITIONS = 1
-X_IGN(1)      = 0.0
-Y_IGN(1)      = 3000.0
-T_IGN(1)      = 0.0
-WX_BILINEAR_INTERPOLATION=.TRUE.
-WSMFEFF_LOW_MULT = 0.011364
-
 ## Research Foundation for Generating Dataset
 **1. Recurrent Convolutional Deep Neural Networks for Modeling Time-Resolved Wildfire Spread Behavior – Burge et al. (Google Research)**
 - **Basics**
