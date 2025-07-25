@@ -37,36 +37,6 @@ This repository serves as a reference for generating comprehensive datasets usin
 ## Workflow
 1. Copy the .sh, .py, and .csv files from the repo into a folder in ELMFIRE
 
-Possible things to vary:
-# Begin specifying inputs
-
-CELLSIZE=30.0 # Grid size in meters
-DOMAINSIZE=60000.0 # Height and width of domain in meters
-SIMULATION_TSTOP=259200.0 # Simulation stop time (seconds)
-
-NUM_FLOAT_RASTERS=7
-FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=15.0 # Wind speed, mph
-FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=0.0  # Wind direction, deg
-FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=3.0  # 1-hr   dead moisture content, %
-FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=4.0  # 10-hr  dead moisture content, %
-FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=5.0  # 100-hr dead moisture content, %
-FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-)
-FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field
-
-NUM_INT_RASTERS=8
-INT_RASTER[1]=slp     ; INT_VAL[1]=0   # Topographical slope (deg)
-INT_RASTER[2]=asp     ; INT_VAL[2]=0   # Topographical aspect (deg)
-INT_RASTER[3]=dem     ; INT_VAL[3]=0   # Elevation (m)
-INT_RASTER[4]=fbfm40  ; INT_VAL[4]=102 # Fire behavior fuel model code (-)
-INT_RASTER[5]=cc      ; INT_VAL[5]=0   # Canopy cover (percent)
-INT_RASTER[6]=ch      ; INT_VAL[6]=0   # Canopy height (10*meters)
-INT_RASTER[7]=cbh     ; INT_VAL[7]=0   # Canopy base height (10*meters)
-INT_RASTER[8]=cbd     ; INT_VAL[8]=0   # Canopy bulk density (100*kg/m3)
-
-LH_MOISTURE_CONTENT=30.0 # Live herbaceous moisture content, percent
-LW_MOISTURE_CONTENT=60.0 # Live woody moisture content, percent
-A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
-
 ## ELMFIRE
 **Inputs:**
 FUELS_AND_TOPOGRAPHY_DIRECTORY: fuels directory './inputs'
