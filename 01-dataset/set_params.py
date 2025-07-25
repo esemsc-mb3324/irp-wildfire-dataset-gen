@@ -34,8 +34,13 @@ def set_parameters():
 
     # Integer raster parameters
     canopy_cover = np.random.randint(0, 101)  # [0, 100]
-    canopy_height = np.random.randint(0, 6)  # [0, 5]
-    canopy_base_height = np.random.randint(0, min(3, canopy_height))  # [0, 2]
+    canopy_height = np.random.randint(0, 6)  # [0, 5] (each unit = 10m)
+    # canopy_base_height must be < 3 and < canopy_height
+    cbh_max = min(3, canopy_height)  # cbh_max is exclusive upper bound
+    if cbh_max > 0:
+        canopy_base_height = np.random.randint(0, cbh_max)
+    else:
+        canopy_base_height = 0
     canopy_bulk_density = np.random.randint(0, 41)  # [0, 40] in 100kg/m^3
 
     # Live moisture parameters
