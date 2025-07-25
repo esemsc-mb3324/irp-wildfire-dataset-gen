@@ -26,7 +26,7 @@ def set_parameters():
    # Integer raster parameters
    canopy_cover = np.random.randint(0, 101)  # [0, 100]
    canopy_height = np.random.randint(0, 6)  # [0, 5]
-   canopy_base_height = np.random.randint(0, 3)  # [0, 2]
+   canopy_base_height = np.random.randint(0, canopy_height)  # [0, canopy_height]
    canopy_bulk_density = np.random.randint(0, 41)  # [0, 40]
    
    # Live moisture parameters
