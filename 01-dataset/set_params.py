@@ -15,34 +15,40 @@ def set_parameters():
         print("Usage: python set_params.py <run_number>")
         sys.exit(1)
     run_number = sys.argv[1]
+    tstop = float(sys.argv[2]) if len(sys.argv) > 2 else 22100.0  # Default simulation stop time
+    domain_size = float(sys.argv[3]) if len(sys.argv) > 3 else 3840.0  # Default domain size
 
     # Generate random parameters
     fuel_model = np.random.randint(1, 41)  # [1, 40]
-    x_ign = np.random.uniform(-960, 960)  # Middle 50% of domain [-1920, 1920]
-    y_ign = np.random.uniform(-960, 960)  # Middle 50% of domain [-1920, 1920]
+    x_ign = np.random.uniform(-domain_size/2, domain_size/2)  # Middle 50% of domain [-1920, 1920]
+    y_ign = np.random.uniform(-domain_size/2, domain_size/2)  # Middle 50% of domain [-1920, 1920]
     slope = np.random.randint(0, 46)  # [0, 45]
     aspect = np.random.randint(0, 361)  # [0, 360]
 
     # Float raster parameters
-    wind_speed = np.random.uniform(-0.5, 30.5)
-    wind_direction = np.random.uniform(0.0, 360.0)
-    m1_moisture = np.random.uniform(1.0, 39.0)
-    m10_moisture = np.random.uniform(1.0, 39.0)
-    m100_moisture = np.random.uniform(1.0, 39.0)
+    wind_speed = np.random.uniform(0, 31) # [0, 30]
+    wind_direction = np.random.uniform(0.0, 360.0) # [0, 360]
+    m1_moisture = np.random.uniform(2.0, 40.0) # [2, 40]
+    m10_moisture = np.random.uniform(2.0, 40.0) # [2, 40]
+    m100_moisture = np.random.uniform(2.0, 40.0) # [2, 40]
 
     # Integer raster parameters
     canopy_cover = np.random.randint(0, 101)  # [0, 100]
     canopy_height = np.random.randint(0, 6)  # [0, 5]
-    canopy_base_height = np.random.randint(0, 3)  # [0, 2]
-    canopy_bulk_density = np.random.randint(0, 41)  # [0, 40]
+    canopy_base_height = np.random.randint(0, min(3, canopy_height))  # [0, 2]
+    canopy_bulk_density = np.random.randint(0, 41)  # [0, 40] in 100kg/m^3
 
     # Live moisture parameters
-    live_herbaceous = np.random.uniform(30.0, 100.0)
-    live_woody = np.random.uniform(30.0, 100.0)
+    live_herbaceous = np.random.uniform(30.0, 100.0) # [30, 100]
+    live_woody = np.random.uniform(30.0, 100.0) # [30, 100]
 
     # Modify 01-run.sh
     with open('01-run.sh', 'r') as f:
         bash_content = f.read()
+
+    # write in domain size
+    bash_content = re.sub(r'DOMAINSIZE=[0-9.-]+', f'DOMAINSIZE={domain_size}', bash_content)
+    bash_content = re.sub(r'SIMULATION_TSTOP=[0-9.-]+', f'SIMULATION_TSTOP={tstop}', bash_content)
 
     # Float rasters
     bash_content = re.sub(r'FLOAT_VAL\[1\]=[0-9.-]+', f'FLOAT_VAL[1]={wind_speed:.1f}', bash_content)

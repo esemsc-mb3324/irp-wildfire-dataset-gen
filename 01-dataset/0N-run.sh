@@ -17,15 +17,32 @@ if [ -z "$1" ]; then
 fi
 
 NUM_RUNS=$1
+if [ -z "$2" ]; then
+    TSTOP=22100.0  # Default simulation stop time
+else
+    TSTOP=$2
+fi
+# get domain size and tstop from command line arguments
+if [ -z "$3" ]; then
+    DOMAIN_SIZE=3840.0  # Default domain size
+else
+    DOMAIN_SIZE=$3
+fi
+
+# replace input_tracking.txt with the header
+echo "run,xign,yign,fuel,slp,asp,ws,wd,m1,m10,m100,cc,ch,cbh,cbd,lhc,lwc" > input_tracking.txt
+# reset sim_times.txt
+echo "run,sim_time" > sim_times.txt
+
 RUN_DIR="./cases"
+rm -rf $RUN_DIR
 mkdir -p $RUN_DIR
 for (( run=1; run<=NUM_RUNS; run++ )); do
     echo "Running simulation for run number: $run"
     
     # Call set_params.py to set the parameters
-    python3 set_params.py $run
-    
-    # Run the simulation
+    python3 set_params.py $run $TSTOP $DOMAIN_SIZE
+
     bash 01-run.sh
     
     # Create a directory for this run and move inputs and outputs

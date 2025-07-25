@@ -125,3 +125,55 @@ def plot_input_vs_run():
     
     plt.tight_layout()
     plt.show()
+
+# quick check to make sure all of the input parameters are within the expected ranges
+# from input_tracking.txt: run,xign,yign,fuel,slp,asp,ws,wd,m1,m10,m100,cc,ch,cbh,cbd,lhc,lwc
+# id,name,init_value,negative_perturb,upper_perturb,range,notes
+# WS,wind_speed,15.0,-15.5,15.5,[−0.5,30.5],
+# WD,wind_direction,180.0,-180.0,180.0,[0.0,360.0],
+# M1,m1_moisture,20.0,-19.0,19.0,[1.0,39.0],
+# M10,m10_moisture,20.0,-19.0,19.0,[1.0,39.0],
+# M100,m100_moisture,20.0,-19.0,19.0,[1.0,39.0],
+# MLH,live_herbaceous,65.0,-35.0,35.0,[30.0,100.0],
+# MLW,live_woody,65.0,-35.0,35.0,[30.0,100.0],
+# CC,canopy_cover,50,-50.0,50.0,[0,100],
+# CH,canopy_height,2,-2.0,3.0,[0,5],
+# CBH,canopy_base_height,1,-1.0,1.0,[0,canopy_height],
+# CBD,canopy_bulk_density,20,-20.0,20.0,[0,40],
+# SLP,slope,0,-,-,[0,45],# perturbed directly
+# ASP,aspect,0,-,-,[0,360],# perturbed directly
+# FBFM40,fuel_model,1,-,-,[1,40],# perturbed directly
+# DEM,elevation,0,-,-,[0,0],# not perturbed
+def check_input_ranges():
+    input_file = 'input_tracking.txt'
+    df = pd.read_csv(input_file)
+
+    print(f'Checking input parameter ranges from {input_file}:')
+    print(df.columns)
+    
+    # Define expected ranges
+    expected_ranges = {
+        'ws': (0, 30.5),
+        'wd': (0.0, 360.0),
+        'm1': (1.0, 39.0),
+        'm10': (1.0, 39.0),
+        'm100': (1.0, 39.0),
+        'lhc': (30.0, 100.0),
+        'lwc': (30.0, 100.0),
+        'cc': (0, 100),
+        'ch': (0, 5),
+        'cbh': (0, 2),  # Canopy base height should not exceed canopy height
+        'cbd': (0, 40),
+        'slp': (0, 45),
+        'asp': (0, 360),
+        'fuel': (1, 40)
+    }
+    for column in df.columns[1:]:
+        if column in expected_ranges:
+            min_val, max_val = expected_ranges[column]
+            if not df[column].between(min_val, max_val).all():
+                print(f"Warning: {column} values out of range: {df[column].min()} to {df[column].max()}")
+            else:
+                print(f"{column} values are within the expected range: {min_val} to {max_val}")
+        else:
+            print(f"{column} is not a recognized input parameter.")

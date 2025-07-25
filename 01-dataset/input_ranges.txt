@@ -1,16 +1,18 @@
-id,name,init_value,negative_perturb,upper_perturb,range,notes
-WS,wind_speed,15.0,-15.5,15.5,[−0.5,30.5],
-WD,wind_direction,180.0,-180.0,180.0,[0.0,360.0],
-M1,m1_moisture,20.0,-19.0,19.0,[1.0,39.0],
-M10,m10_moisture,20.0,-19.0,19.0,[1.0,39.0],
-M100,m100_moisture,20.0,-19.0,19.0,[1.0,39.0],
-MLH,live_herbaceous,65.0,-35.0,35.0,[30.0,100.0],
-MLW,live_woody,65.0,-35.0,35.0,[30.0,100.0],
-CC,canopy_cover,50,-50.0,50.0,[0,100],
-CH,canopy_height,2,-2.0,3.0,[0,5],
-CBH,canopy_base_height,1,-1.0,1.0,[0,canopy_height],
-CBD,canopy_bulk_density,20,-20.0,20.0,[0,40],
-SLP,slope,0,-,-,[0,45],# perturbed directly
-ASP,aspect,0,-,-,[0,360],# perturbed directly
-FBFM40,fuel_model,1,-,-,[1,40],# perturbed directly
-DEM,elevation,0,-,-,[0,0],# not perturbed
+id,name,range
+FBFM40,fuel_model,[1,40]
+X_IGN,x_ignition,[-960,960]
+Y_IGN,y_ignition,[-960,960]
+SLP,slope,[0,45]
+ASP,aspect,[0,360]
+WS,wind_speed,[0,30]
+WD,wind_direction,[0,360]
+M1,m1_moisture,[2,40]
+M10,m10_moisture,[2,40]
+M100,m100_moisture,[2,40]
+CC,canopy_cover,[0,100]
+CH,canopy_height,[0,5]
+CBH,canopy_base_height,[0,min(3, canopy_height)]
+CBD,canopy_bulk_density,[0,40] in 100kg/m^3
+MLH,live_herbaceous,[30,100]
+MLW,live_woody,[30,100]
+DEM,elevation,[0,0]
