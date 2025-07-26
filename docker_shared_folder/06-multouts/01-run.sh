@@ -1,32 +1,35 @@
 #!/bin/bash
 
-# Begin specifying inputs
+# Begin specifying inputs for randomized dataset generation
 
 CELLSIZE=30.0 # Grid size in meters
-DOMAINSIZE=3840.0 # Height and width of domain in meters
-SIMULATION_TSTOP=22100.0 # Simulation stop time (seconds)
+DOMAINSIZE=3840.0 # Height and width of domain in meters (128x128 cells)
+SIMULATION_TSTOP=22100.0 # Simulation stop time (seconds) 72hr
 
+# Create base rasters with uniform values
 NUM_FLOAT_RASTERS=7
-FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=0.9 # Wind speed, mph
-FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=134.4  # Wind direction, deg
-FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=17.1  # 1-hr   dead moisture content, %
-FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=32.7  # 10-hr  dead moisture content, %
-FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=26.4  # 100-hr dead moisture content, %
-FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-)
-FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field
+FLOAT_RASTER[1]=ws   ; FLOAT_VAL[1]=15.0 # Wind speed, mph
+FLOAT_RASTER[2]=wd   ; FLOAT_VAL[2]=180.0  # Wind direction, deg
+FLOAT_RASTER[3]=m1   ; FLOAT_VAL[3]=19.0  # 1-hr   dead moisture content, %
+FLOAT_RASTER[4]=m10  ; FLOAT_VAL[4]=19.0  # 10-hr  dead moisture content, %
+FLOAT_RASTER[5]=m100 ; FLOAT_VAL[5]=19.0  # 100-hr dead moisture content, %
+FLOAT_RASTER[6]=adj  ; FLOAT_VAL[6]=1.0  # Spread rate adjustment factor (-) – WILL NOT BE PERTURBED
+FLOAT_RASTER[7]=phi  ; FLOAT_VAL[7]=1.0  # Initial value of phi field – WILL NOT BE PERTURBED
 
+# Create integer base rasters - these will also be perturbed
 NUM_INT_RASTERS=8
-INT_RASTER[1]=slp     ; INT_VAL[1]=13   # Topographical slope (deg) # perturbed directly
-INT_RASTER[2]=asp     ; INT_VAL[2]=85   # Topographical aspect (deg) # perturbed directly
-INT_RASTER[3]=dem     ; INT_VAL[3]=0   # Elevation (m)
-INT_RASTER[4]=fbfm40  ; INT_VAL[4]=16 # Fire behavior fuel model code (-)
-INT_RASTER[5]=cc      ; INT_VAL[5]=84   # Canopy cover (percent)
-INT_RASTER[6]=ch      ; INT_VAL[6]=1   # Canopy height (10*meters)
-INT_RASTER[7]=cbh     ; INT_VAL[7]=1   # Canopy base height (10*meters)
-INT_RASTER[8]=cbd     ; INT_VAL[8]=25   # Canopy bulk density (100*kg/m3)
+INT_RASTER[1]=slp     ; INT_VAL[1]=22   # Topographical slope (deg) - middle of range
+INT_RASTER[2]=asp     ; INT_VAL[2]=180  # Topographical aspect (deg) - middle of range
+INT_RASTER[3]=dem     ; INT_VAL[3]=0    # Elevation (m) - WILL NOT BE PERTURBED
+INT_RASTER[4]=fbfm40  ; INT_VAL[4]=20   # Fire behavior fuel model code - middle of range
+INT_RASTER[5]=cc      ; INT_VAL[5]=50   # Canopy cover (percent) - middle of range
+INT_RASTER[6]=ch      ; INT_VAL[6]=2    # Canopy height (10*meters) - middle of range (26 = 2.6m display)
+INT_RASTER[7]=cbh     ; INT_VAL[7]=1   # Canopy base height (10*m) - placeholder
+INT_RASTER[8]=cbd     ; INT_VAL[8]=20   # Canopy bulk density (100*kg/m3) - middle of range
 
-LH_MOISTURE_CONTENT=78.2 # Live herbaceous moisture content, percent
-LW_MOISTURE_CONTENT=87.5 # Live woody moisture content, percent
+# Base moisture values - will be overridden by Monte Carlo perturbations
+LH_MOISTURE_CONTENT=65.0 # Live herbaceous moisture content, percent (middle of range)
+LW_MOISTURE_CONTENT=65.0 # Live woody moisture content, percent (middle of range)
 A_SRS="EPSG: 32610" # Spatial reference system - UTM Zone 10
 
 # End inputs specification
@@ -68,6 +71,9 @@ for i in $(eval echo "{1..$NUM_INT_RASTERS}"); do
    gdal_calc.py -A $SCRATCH/int.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/${INT_RASTER[i]}.tif" --calc="A + ${INT_VAL[i]}"
 done
 
+# Create the ignition mask (1.0 in all cells)
+# gdal_calc.py -A $SCRATCH/float.tif --co="COMPRESS=DEFLATE" --co="ZLEVEL=9" --NoDataValue=-9999 --outfile="$INPUTS/ignition_mask.tif" --calc="A + 1.0"
+
 # Set inputs in elmfire.data
 replace_line COMPUTATIONAL_DOMAIN_XLLCORNER $XMIN no
 replace_line COMPUTATIONAL_DOMAIN_YLLCORNER $YMIN no
@@ -84,7 +90,7 @@ elmfire_$ELMFIRE_VER ./inputs/elmfire.data
 for f in ./outputs/*.bil; do
    gdal_translate -a_srs "$A_SRS" -co "COMPRESS=DEFLATE" -co "ZLEVEL=9" $f ./outputs/`basename $f | cut -d. -f1`.tif
 done
-gdal_contour -i 3600 `ls ./outputs/time_of_arrival*.tif` ./outputs/hourly_isochrones.shp
+# gdal_contour -i 3600 `ls ./outputs/time_of_arrival*.tif` ./outputs/hourly_isochrones.shp
 
 # Clean up and exit:
 rm -f -r ./outputs/*.csv ./outputs/*.bil ./outputs/*.hdr $SCRATCH

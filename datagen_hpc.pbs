@@ -1,0 +1,31 @@
+#!/bin/bash
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=4:mem=16gb:ngpus=1
+#PBS -N elmfire_build_and_run
+
+# Load required modules
+module load GCC
+module load OpenMPI
+module load GDAL
+module load Python
+
+# Set environment variables
+export ELMFIRE_BASE_DIR=$HOME/elmfire
+export ELMFIRE_INSTALL_DIR=$ELMFIRE_BASE_DIR/build/linux/bin
+export PATH=$PATH:$ELMFIRE_INSTALL_DIR:$ELMFIRE_BASE_DIR/cloudfire
+
+# Copy entire elmfire directory to $TMPDIR
+cp -r $HOME/elmfire $TMPDIR
+
+# Build ELMFIRE in $TMPDIR (faster local storage)
+cd $TMPDIR/elmfire/build/linux
+./make_gnu.sh
+
+# Change to the dataset directory
+cd $TMPDIR/elmfire/docker_shared_folder/01-dataset
+
+# Run your script with arguments
+bash 0N-run.sh 10000 259200 3840
+
+# Copy results back
+cp -r $TMPDIR/elmfire/docker_shared_folder/01-dataset $HOME/

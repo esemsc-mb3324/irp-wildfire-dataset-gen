@@ -8,7 +8,7 @@ MLH,live_herbaceous,65.0,-35.0,35.0,[30.0,100.0],
 MLW,live_woody,65.0,-35.0,35.0,[30.0,100.0],
 CC,canopy_cover,50,-50.0,50.0,[0,100],
 CH,canopy_height,2,-2.0,3.0,[0,5],
-CBH,canopy_base_height,1,-1.0,1.0,[0,2],
+CBH,canopy_base_height,1,-1.0,1.0,[0,canopy_height],
 CBD,canopy_bulk_density,20,-20.0,20.0,[0,40],
 SLP,slope,0,-,-,[0,45],# perturbed directly
 ASP,aspect,0,-,-,[0,360],# perturbed directly
