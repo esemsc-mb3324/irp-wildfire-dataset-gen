@@ -150,7 +150,7 @@ After processing, you'll get:
 
 ## Configuration
 
-Edit `config_postprocess.yaml` to customize:
+Edit `config.py` to customize:
 
 ```yaml
 # Processing Parameters
